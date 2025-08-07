@@ -1,2 +1,90 @@
-# RIP-network-implementation-and-load-balancing
-RIP network implementation and load balancing
+# Round Robin을 활용한 L4 Load Balancer 구현과 성능 비교
+
+### 주제 소개 및 목표
+
+[ 주제 ]
+본 프로젝트는 Round Robin 알고리즘을 활용한 Loda Balancer 구현과 성능 비교를 진행한다. 
+이때, L4 Load Balancer를 Round Robin 알고리즘을 활용하여 구현하고, 서버 간 트래픽을 효율적으로 분산시키는 방법을 실험하고 성능을 비교한다.
+
+[ 목표 ]
+최소 3개 이상의 서버를 구축하고, L4 Load Balancer를 통해 트래픽을 Round Robin 방식으로 분산시키는 것을 목표로 한다.
+이를 통해, Round Robin 방식의 성능을 측정하고, 다른 부하 분산 방식을 사용하는 Load Balancer 혹은 Load Balancer를 사용하지 않은 경우와 비교하고자 한다.
+
+### L4 Load Balancer & RR Algorithm 개념
+
+- Load Balancling
+    - 네트워크 또는 서버에 가해지는 부하(Load)를 여러 개의 서버들에 분산시켜주는 네트워크 기술이다.
+    - 이러한 Load Balancing을 통해 네트워크의 가용성과 응답시간을 최적화한다.
+
+
+- Load Balancer - L4
+    - TCP/UDP가 속한 transport 계측에서 작동하는 Load Balancer 이다.
+    - 포트 기반의 부하 분산으로, IP와 포트 정보를 기반으로 트래픽을 처리한다.
+
+- Round Robin Algorithm
+    - Load Balancling 방식 중 정적 방식의 대표적인 방식.
+    - 클라이언트 요청을 균등하게 순차적으로 각 서버에 분배하는 부하 분산 방식이다.
+    - 모든 서버가 동일한 요청 처리 능력을 갖추고 있다고 가정할 때 효과적이며, 간단하고 효율적인 알고리즘이다.
+
+### 네트워크 구조 
+<img width="1691" height="752" alt="스크린샷 2025-08-07 오후 5 26 52" src="https://github.com/user-attachments/assets/880131b4-18e2-4523-8982-5a9155ef9ef0" />
+
+### 라우터 및 서버 설정
+<img width="1551" height="535" alt="스크린샷 2025-08-07 오후 5 27 28" src="https://github.com/user-attachments/assets/b740e664-7899-4afc-a68e-3d5606c80b95" />
+
+
+### 구현
+<img width="474" height="212" alt="스크린샷 2025-08-07 오후 5 30 19" src="https://github.com/user-attachments/assets/300216e6-f568-42f3-8f72-8c68f12697ee" />
+
+<img width="443" height="225" alt="스크린샷 2025-08-07 오후 5 30 34" src="https://github.com/user-attachments/assets/1c039a1f-5c24-4a4c-b40a-60fb57d33b44" />
+
+<img width="469" height="201" alt="스크린샷 2025-08-07 오후 5 31 03" src="https://github.com/user-attachments/assets/add4273c-226a-4630-9819-a29f2fe6d9b8" />
+
+<img width="441" height="192" alt="스크린샷 2025-08-07 오후 5 31 11" src="https://github.com/user-attachments/assets/e7a0bb22-08d9-46d2-a40e-b6281930d8b5" />
+
+### 실험 설정
+
+<img width="473" height="202" alt="스크린샷 2025-08-07 오후 5 31 24" src="https://github.com/user-attachments/assets/7407b880-385a-494c-b6c0-5cddbc4eb8da" />
+
+<img width="445" height="232" alt="스크린샷 2025-08-07 오후 5 31 33" src="https://github.com/user-attachments/assets/7e6b53af-1a21-4953-8a31-3f4f2fb380e2" />
+
+<img width="463" height="190" alt="스크린샷 2025-08-07 오후 5 32 07" src="https://github.com/user-attachments/assets/bedae13e-1adc-4778-8050-4a7fda43e793" />
+
+<img width="462" height="111" alt="스크린샷 2025-08-07 오후 5 32 17" src="https://github.com/user-attachments/assets/cb629e10-3d29-4615-9399-63d3a777ff10" />
+
+
+### 실험 결론: Round Robin vs 로드밸런싱 미사용 방식
+
+
+[ 라운드로빈 방식 ]
+- 총 요청 수: 230건
+- 실패한 요청 없음
+- 도달하지 못한 요청 4건 제외, 226건 성공
+- 요청은 4개의 서버에 균등하게 분배됨
+- 각 서버에 과부하 없음
+- 총 응답 시간: 0.14초
+- 효율적인 분배 결과임
+
+[ 로드밸런싱 미사용 방식 ]
+- 모든 요청이 서버 1번에 집중됨
+- 총 230 요청 중 설정된 요청 제한 수(210개)를 초과한 요청 20개는 실패
+- 210개만 성공적으로 처리됨
+- 총 응답 시간: 0.17초
+- 특정 서버 과부하로 인해 응답 지연 발생
+
+
+<img width="1721" height="167" alt="스크린샷 2025-08-07 오후 5 28 40" src="https://github.com/user-attachments/assets/2e22ceab-abf9-4b39-97ca-a6543d1271b7" />
+
+
+### 결론
+- 라운드로빈 알고리즘 사용 시
+    - 요청이 균등하게 분배되어 과부하 방지
+    - 빠르고 안정적인 요청 처리 가능
+- 로드밸런싱 미사용 시
+    - 요청이 특정 서버에 집중되어 과부하 발생
+    - 전체 시스템 성능 저하
+
+⸻
+
+### 실험을 통해 얻은 인사이트
+로드밸런싱의 필요성 확인하였으며, 특히 네트워크 환경에서 라운드로빈 같은 부하 분산 알고리즘은 요청 처리 성능과 안정성 향상에 매우 효과적이다.
